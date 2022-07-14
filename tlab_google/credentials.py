@@ -44,7 +44,7 @@ class Credentials:
     >>> creds.reflesh()
     """
     _credentials: credentials.Credentials
-    """An actual credentials."""
+    """Actual credentials."""
 
     @classmethod
     def new(
