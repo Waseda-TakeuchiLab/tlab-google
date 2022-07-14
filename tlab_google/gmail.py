@@ -67,7 +67,7 @@ class GmailAPI(abstract.AbstractAPI):
         max_results: int = 100,
         page_token: str | None = None,
         label_ids: list[str] | None = None,
-        include_spam_trash: bool = False,
+        include_spam_trash: bool = False
     ) -> tuple[list[Message], str, int]:
         """Search the user's mailbox on Gmail.
 
@@ -145,10 +145,7 @@ class GmailAPI(abstract.AbstractAPI):
         ).execute()
         return {str(key): result[key] for key in result}
 
-    def send_email(
-        self,
-        message: mimebase.MIMEBase,
-    ) -> None:
+    def send_email(self, message: mimebase.MIMEBase) -> None:
         """Send a email via Gmail.
 
         Parameters
@@ -162,10 +159,7 @@ class GmailAPI(abstract.AbstractAPI):
             body={"raw": raw_body}
         ).execute()
 
-    def get_signature(
-        self,
-        address: str | None = None,
-    ) -> str:
+    def get_signature(self, address: str | None = None) -> str:
         """Get a signature registered on Gmail.
 
         Parameters

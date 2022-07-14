@@ -1,7 +1,6 @@
 # Copyright (c) 2022 Shuhei Nitta. All rights reserved.
 from unittest import TestCase, mock
 
-
 from tlab_google import abstract
 
 
