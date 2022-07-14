@@ -1,6 +1,5 @@
 # Copyright (c) 2022 Shuhei Nitta. All rights reserved.
 from unittest import TestCase, mock
-
 import base64
 from email.mime import text
 import typing as t
@@ -12,7 +11,6 @@ CREDENTIALS_MOCK = mock.Mock(spec_set=credentials.Credentials)
 
 
 class TestGmailAPI_properties(TestCase):
-    api: gmail.GmailAPI
 
     def setUp(self) -> None:
         self.api = gmail.GmailAPI(CREDENTIALS_MOCK)
@@ -30,18 +28,17 @@ class TestGmailAPI_properties(TestCase):
 
 
 class TestGmailAPI_search_email(TestCase):
-    api: gmail.GmailAPI
 
     def setUp(self) -> None:
         self.api = gmail.GmailAPI(CREDENTIALS_MOCK)
 
     def _test(
         self,
-        query: str,
-        max_results: int,
-        page_token: str | None,
-        label_ids: list[str] | None,
-        include_spam_trash: bool
+        query: str = "",
+        max_results: int = 0,
+        page_token: str | None = None,
+        label_ids: list[str] | None = None,
+        include_spam_trash: bool = False
     ) -> None:
         with mock.patch("tlab_google.gmail.GmailAPI._service") as service_mock:
             messages = [
@@ -83,94 +80,43 @@ class TestGmailAPI_search_email(TestCase):
 
     def test_query(self) -> None:
         queries = [f"subject:(Subject{i})" for i in range(3)]
-        max_results = 100
-        page_token = None
-        label_ids = None
-        include_spam_trash = False
         for query in queries:
             with self.subTest(query=query):
-                self._test(
-                    query,
-                    max_results,
-                    page_token,
-                    label_ids,
-                    include_spam_trash
-                )
+                self._test(query=query)
 
     def test_max_results(self) -> None:
-        query = "subject:(Subject)"
         max_results_list = list(range(100, 400, 100))
-        page_token = None
-        label_ids = None
-        include_spam_trash = False
         for max_results in max_results_list:
             with self.subTest(max_results=max_results):
-                self._test(
-                    query,
-                    max_results,
-                    page_token,
-                    label_ids,
-                    include_spam_trash
-                )
+                self._test(max_results=max_results)
 
     def test_page_token(self) -> None:
-        query = "subject:(Subject)"
-        max_results = 100
         page_tokens = [f"pagetoken{i}" for i in range(3)]
-        label_ids = None
-        include_spam_trash = False
         for page_token in page_tokens:
             with self.subTest(page_token=page_token):
-                self._test(
-                    query,
-                    max_results,
-                    page_token,
-                    label_ids,
-                    include_spam_trash
-                )
+                self._test(page_token=page_token)
 
     def test_label_ids(self) -> None:
-        query = "subject:(Subject)"
-        max_results = 100
-        page_token = None
         label_ids_list = [[f"labelId{i}" for i in range(j)] for j in range(3)]
-        include_spam_trash = False
         for label_ids in label_ids_list:
             with self.subTest(label_ids=label_ids):
-                self._test(
-                    query,
-                    max_results,
-                    page_token,
-                    label_ids,
-                    include_spam_trash
-                )
+                self._test(label_ids=label_ids)
 
     def test_include_spam_trash(self) -> None:
-        query = "subject:(Subject)"
-        max_results = 100
-        page_token = None
-        label_ids = None
         for include_spam_trash in {True, False}:
             with self.subTest(include_spam_trash=include_spam_trash):
-                self._test(
-                    query,
-                    max_results,
-                    page_token,
-                    label_ids,
-                    include_spam_trash
-                )
+                self._test(include_spam_trash=include_spam_trash)
 
 
 class TestGmailAPI_get_email(TestCase):
-    api: gmail.GmailAPI
 
     def setUp(self) -> None:
         self.api = gmail.GmailAPI(CREDENTIALS_MOCK)
 
     def _test(
         self,
-        id: str,
-        format: t.Literal["minimal", "full", "raw", "metadata"]
+        id: str = "",
+        format: t.Literal["minimal", "full", "raw", "metadata"] = "minimal"
     ) -> None:
         with mock.patch("tlab_google.gmail.GmailAPI._service") as service_mock:
             message = {
@@ -195,29 +141,20 @@ class TestGmailAPI_get_email(TestCase):
 
     def test_id(self) -> None:
         ids = [f"00000000000000{i.to_bytes(1, 'little').hex()}" for i in range(3)]
-        format: t.Literal["minimal", "full", "raw", "metadata"] = "full"
         for id in ids:
             with self.subTest(id=id):
-                self._test(
-                    id=id,
-                    format=format
-                )
+                self._test(id=id)
 
     def test_format(self) -> None:
-        id = int(0).to_bytes(1, "little").hex()
         formats: list[t.Literal["minimal", "full", "raw", "metadata"]] = [
             "minimal", "full", "raw", "metadata"
         ]
         for format in formats:
             with self.subTest(format=format):
-                self._test(
-                    id=id,
-                    format=format
-                )
+                self._test(format=format)
 
 
 class TestGmailAPI_send_email(TestCase):
-    api: gmail.GmailAPI
 
     def setUp(self) -> None:
         self.api = gmail.GmailAPI(CREDENTIALS_MOCK)
@@ -241,7 +178,6 @@ class TestGmailAPI_send_email(TestCase):
 
 
 class TestGmailAPI_get_signature(TestCase):
-    api: gmail.GmailAPI
 
     def setUp(self) -> None:
         self.api = gmail.GmailAPI(CREDENTIALS_MOCK)
@@ -261,7 +197,7 @@ class TestGmailAPI_get_signature(TestCase):
         }
         self.sendas_list.append(self.default_sendas)
 
-    def _test(self, address: str | None) -> None:
+    def _test(self, address: str | None = None) -> None:
         with mock.patch("tlab_google.gmail.GmailAPI._service") as service_mock:
             list = service_mock \
                 .users.return_value \
